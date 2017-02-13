@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "library(shiny)\n\n# Define UI for application that draws a histogram\nshinyUI(\n  fluidPage(\n    \n    # Application title\n    titlePanel(\"File Input\"),\n    \n    # Sidebar with a slider input for number of bins\n    sidebarLayout(\n      sidebarPanel(\n        \"Main\",\n        \n        # fileinput() function is used to get the file upload contorl option\n        fileInput(\"data\", \n                  \"Dataset CSV File:\",\n                  accept = c(\n                    \"text/csv\",\n                    \".csv\",\n                    \"text/comma-separated-vales,text/plain\"\n                  )\n         ),\n                 \n         helpText(\"Default max. file size is 5MB\"),\n                 \n        tabPanel(\n          tags$hr(),\n          h5(helpText(\"Select your parameters\")),\n          #numericInput('n', 'min of slider', 1),\n          #numericInput('m', 'Max of slider', 30),\n          sliderInput(\"epsRange\", \"eps Range:\", min = 1, max = 30, value = c(1,30)),\n          sliderInput(\"minPtsRange\", \"minPts Range:\", min = 1, max = 30, value = c(1,30))\n        ),\n    \n        tabPanel(\n          h5(helpText(\"Select the read.table parameters below\")),\n          checkboxInput(inputId = 'header', label = 'Header', value = TRUE),\n          checkboxInput(inputId = \"stringAsFactors\", \"stringAsFactors\", FALSE),\n          br(),\n          radioButtons(inputId = 'sep', label = 'Separator', choices = c(Comma=',',Semicolon=';',Tab='\\t', Space=''), selected = ',')\n        )\n      ),\n  \n      mainPanel(\n        uiOutput(\"tb\"),\n        dataTableOutput('fcluster')\n        \n        # Use below code if you want the tabset programming in the main panel. \n        # If so, then tabset will appear when the app loads for the first time.\n        \n        #tabsetPanel(tabPanel(\"Summary\", verbatimTextOutput(\"sum\")),\n        #tabPanel(\"Data\", tableOutput(\"table\")))\n      )\n    \n    )\n  )\n)\n",
+    "created" : 1486961092364.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2966823629",
+    "id" : "44C676D7",
+    "lastKnownWriteTime" : 1486960492,
+    "last_content_update" : 1486960492,
+    "path" : "C:/Users/MSI/Desktop/Learning Materials/Year 2/Software Engineering Group Project/GRP/src/ui.R",
+    "project_path" : "src/ui.R",
+    "properties" : {
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

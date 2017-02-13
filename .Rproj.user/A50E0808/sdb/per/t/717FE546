@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "library(shiny)\n# use the below options code if you wish to increase the file input limit, in this example file input limit is increased from 5MB to 9MB\n# options(shiny.maxRequestSize = 9*1024^2)\n\nshinyServer(function(input,output){\n  \n  # This reactive function will take the inputs from UI.R and use them for read.table() to read the data from the file. It returns the dataset in the form of a dataframe.\n  # file$datapath -> gives the path of the file\n  #data <- reactive({\n    #file<-read.csv(file.choose(), header=T)\n   # file1 <- input$file\n    #if(is.null(file1)){return()} \n    #read.table(file=file1$datapath, sep=input$sep, header = input$header, stringsAsFactors = input$stringAsFactors)\n    #})\n  \n  #x <- reactive({\n   # file2 <- input$file\n    #file22<-as.matrix(file2)\n    #if(is.null(file1)){return()} \n    #read.table(file=file22$datapath, sep=input$sep, header = input$header, stringsAsFactors = input$stringAsFactors)\n  #})\n  \n  #merged <- reactive({\n    #file3 <- input$file\n    #if(is.null(file3)){return()} \n   # read.table(file=file3$datapath, sep=input$sep, header = input$header, stringsAsFactors = input$stringAsFactors)\n # })\n  \n  \n  # this reactive output contains the summary of the dataset and display the summary in table format\n  output$filedf <- renderTable({\n    if(is.null(data())){return ()}\n    input$file\n  })\n  \n  # this reactive output contains the summary of the dataset and display the summary in table format\n  output$sum <- renderTable({\n    if(is.null(data())){return ()}\n    summary(data())\n    \n  })\n  \n  # This reactive output contains the dataset and display the dataset in table format\n  output$table <- renderTable({\n    if(is.null(data())){return ()}\n    data()\n  })\n  \n  #merged<-data\n  #x<-as.matrix(data)\n  \n  #output$fcluster <- renderDataTable({\n   # if(is.null(data())){return ()}\n    library(dbscan)\n    x<-as.matrix(data())\n    merged<-data\n    q<-1\n    for(i in .1:.2)\n    {\n      for(j in .1:.2)\n      {\n        db <- dbscan(x, eps = i , minPts = j)\n        merged[q+3] <- db$cluster\n        names(merged)[q+3] <- print(paste0(\"Eps \",i,\" MinPts \",j))\n        q <- q+.1\n      }\n    }\n    output$fcluster <- renderDataTable(merged)\n    #output$table1 <- renderDataTable(merged)\n    #table\n    #dataTableOutput(merged)\n    #data()\n    #server = function(input, output) {\n      #output$table <- renderDataTable(merged)\n    #}\n   # tableOutput(merged)\n  #}\n  #)\n  \n  \n  \n  \n  # the following renderUI is used to dynamically generate the tabsets when the file is loaded. Until the file is loaded, app will not show the tabset.\n  output$tb <- renderUI({\n    if(is.null(data()))\n      \"\"\n    else\n      tabsetPanel(tabPanel(\"About file\", tableOutput(\"filedf\")),tabPanel(\"Data\", tableOutput(\"table\")),tabPanel(\"Summary\", tableOutput(\"sum\")))\n  })\n})",
+    "created" : 1486961086455.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2371889069",
+    "id" : "717FE546",
+    "lastKnownWriteTime" : 1486960760,
+    "last_content_update" : 1486960760,
+    "path" : "C:/Users/MSI/Desktop/Learning Materials/Year 2/Software Engineering Group Project/GRP/src/server.R",
+    "project_path" : "src/server.R",
+    "properties" : {
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
