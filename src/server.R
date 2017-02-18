@@ -55,11 +55,31 @@ shinyServer(function(input,output){
     x<-as.matrix(data())
     merged<-data
     q<-1
+    
+    classified <- data.frame(matrix(NA, nrow=2, ncol=0))
+    rownames(classified) <- c("Wood","Non-Wood")
+    
     for(i in .1:.2)
     {
       for(j in .1:.2)
       {
         db <- dbscan(x, eps = i , minPts = j)
+        
+        temp<- as.data.frame(table(db$cluster))
+        if(temp[1,1] == 0)
+        {
+          temp = temp[-1,]
+        }
+        
+        
+        wood <- max(temp[2])
+        nonwood <- sum(temp[2]) - max(temp[2])
+        
+        
+        classified[1,q] <- wood
+        classified[2,q] <- nonwood
+        names(classified)[q] <- print(paste0("Eps ",i," MinPts ",j))
+        
         merged[q+3] <- db$cluster
         names(merged)[q+3] <- print(paste0("Eps ",i," MinPts ",j))
         q <- q+.1
