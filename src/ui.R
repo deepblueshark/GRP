@@ -11,8 +11,8 @@ shinyUI(fluidPage(
       radioButtons(inputId = 'sep' , label = 'Separator',choices = c(Comma= ',',Semicolon= ';',Tab='\t', Space=' '),selected = ','),
       
       h5(helpText("Please specify your range below before uploading the data file")),
-      sliderInput("eps", "eps Range:", min = 1, max = 10, value = c(1,10)),
-      sliderInput("pts", "minPts Range:", min = 1, max = 10, value = c(1,10)),
+      sliderInput("eps", "eps Range:", min = 1, max = 10, value = c(1,4)),
+      sliderInput("pts", "minPts Range:", min = 1, max = 10, value = c(1,4)),
       
       
       downloadButton('downloadData', 'Save classification'),
