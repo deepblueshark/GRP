@@ -72,8 +72,7 @@ shinyServer(function(input,output){
     merged <<-data()
     q <- 1
     
-    classified <<- data.frame(matrix(NA, nrow=2, ncol=0))
-    rownames(classified) <<- c("Wood","Non-Wood")
+    
     
     for(i in input$eps[1]:input$eps[2])
     {
@@ -84,19 +83,6 @@ shinyServer(function(input,output){
         
         db <- dbscan(x, eps = i , minPts = j)
         
-        temp<- as.data.frame(table(db$cluster))
-        
-        if(temp[1,1]==0){
-          temp = temp[-1,]
-        }
-        
-        wood <- max(temp[2])
-        nonwood <- sum(temp[2]) - max(temp[2])
-        
-        
-        classified[1,q] <<- wood
-        classified[2,q] <<- nonwood
-        names(classified)[q] <<- print(paste0("Eps ",i," MinPts ",j))
         
         merged[q+3] <<- db$cluster
         names(merged)[q+3] <<- print(paste0("Eps ",i," MinPts ",j))
@@ -110,7 +96,117 @@ shinyServer(function(input,output){
   })
   
   output$class <- DT::renderDataTable({
+    if(is.null(data())){return()}
+    
+    x <-as.matrix(data())
+    q <- 1
+    
+    classified <<- data.frame(matrix(NA, nrow=3, ncol=0))
+    rownames(classified) <<- c("Wood","Non-Wood","Total No. of Clusters")
+    
+    for(i in input$eps[1]:input$eps[2])
+    {
+      
+      for(j in input$pts[1]:input$pts[2])
+      {
+        
+        
+        db <- dbscan(x, eps = i , minPts = j)
+        
+        temp<- as.data.frame(table(db$cluster))
+        
+        noise <- 0
+        
+        if(temp[1,1]==0){
+          
+          noise <- as.numeric(temp[1,2])
+          
+          temp = temp[-1,]
+        }
+        
+        
+        
+        wood <- max(temp[2])
+        nonwood <- (sum(temp[2]) - max(temp[2])) + noise 
+        
+        
+        classified[1,q] <<- wood
+        classified[2,q] <<- nonwood
+        classified[3,q] <<- wood+nonwood
+        names(classified)[q] <<- print(paste0("Eps ",i," MinPts ",j))
+        q <- q+1
+        
+      }
+      
+    }
     datatable(classified)
+  })
+  
+  output$sort <- DT::renderDataTable({
+    if(is.null(data())){return()}
+    
+    x <-as.matrix(data())
+    q <- 1
+    
+    first <- NULL
+    second <- NULL
+    third <- NULL
+    fourth <- NULL
+    fifth <- NULL
+    sixth <- NULL
+    seventh <- NULL
+    eighth <- NULL
+    ninth <- NULL
+    tenth <- NULL
+    
+    sorted <<- data.frame(matrix(NA, nrow=10, ncol=0))
+    rownames(sorted) <<- c("Most freq. cluster","2nd freq.","3rd freq.","4th freq.","5th freq.","6th freq.","7th freq.","8th freq.","9th freq.","10th freq.")
+    
+    for(i in input$eps[1]:input$eps[2])
+    {
+      
+      for(j in input$pts[1]:input$pts[2])
+      {
+        
+        
+        db <- dbscan(x, eps = i , minPts = j)
+        
+        temp<- as.data.frame(table(db$cluster))
+        
+        
+        temp <- temp[rev(order(temp$Freq)),]
+        
+      
+        first <- temp$Var1[1]
+        second <- temp$Var1[2]
+        third <- temp$Var1[3]
+        fourth <- temp$Var1[4]
+        fifth <- temp$Var1[5]
+        sixth <- temp$Var1[6]
+        seventh <- temp$Var1[7]
+        eighth <- temp$Var1[8]
+        ninth <- temp$Var1[9]
+        tenth <- temp$Var1[10]
+        
+        sorted[1,q] <<- first
+        sorted[2,q] <<- second
+        sorted[3,q] <<- third
+        sorted[4,q] <<- fourth
+        sorted[5,q] <<- fifth
+        sorted[6,q] <<- sixth
+        sorted[7,q] <<- seventh
+        sorted[8,q] <<- eighth
+        sorted[9,q] <<- ninth
+        sorted[10,q] <<- tenth
+        
+        names(sorted)[q] <<- print(paste0("Eps ",i," MinPts ",j))
+        q <- q+1
+  
+      }
+       }
+ 
+    datatable(sorted)  
+        
   })
   
   output$downloadData <- downloadHandler(
@@ -140,6 +236,6 @@ shinyServer(function(input,output){
     if(is.null(data()))
       ""
     else
-      tabsetPanel(tabPanel("About file", tableOutput("filedf")),tabPanel("Data", dataTableOutput("table")),tabPanel("Summary", dataTableOutput("sum")),tabPanel("Cluster",dataTableOutput("cluster")),tabPanel("Classification",dataTableOutput("class")))
+      tabsetPanel(tabPanel("About file", tableOutput("filedf")),tabPanel("Data", dataTableOutput("table")),tabPanel("Summary", dataTableOutput("sum")),tabPanel("Cluster",dataTableOutput("cluster")),tabPanel("Classification",dataTableOutput("class")),tabPanel("Top 10 Clusters",dataTableOutput("sort")))
   })
 })
