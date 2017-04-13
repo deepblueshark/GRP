@@ -232,6 +232,18 @@ shinyServer(function(input,output){
     }
   )
   
+  output$downloadData3 <- downloadHandler(
+    filename = function() { paste("top10_cluster", "xlsx", sep='.') },
+    content = function(file){
+      fname <- paste(file,"xlsx",sep=".")
+      wb <- createWorkbook()
+      print(class(sorted))
+      addWorksheet(wb = wb, sheetName = "Sheet 1", gridLines = FALSE)
+      writeDataTable(wb = wb, sheet = 1, x = sorted)
+      saveWorkbook(wb, file, overwrite = TRUE)
+    }
+  )
+  
   output$tb <- renderUI({
     if(is.null(data()))
       ""

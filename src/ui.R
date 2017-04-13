@@ -17,7 +17,9 @@ shinyUI(fluidPage(
       
       downloadButton('downloadData', 'Save classification'),
       br(),
-      downloadButton('downloadData2', 'Save cluster')),
+      downloadButton('downloadData2', 'Save cluster'),
+      br(),
+      downloadButton('downloadData3', 'Save top cluster')),
     
     
     
