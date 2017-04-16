@@ -260,7 +260,7 @@ shinyServer(function(input,output){
       wb <- createWorkbook()
       print(class(classified))
       addWorksheet(wb = wb, sheetName = "Sheet 1", gridLines = FALSE)
-      writeDataTable(wb = wb, sheet = 1, x = classified)
+      writeDataTable(wb = wb, sheet = 1,rowNames = TRUE, x = classified)
       saveWorkbook(wb, file, overwrite = TRUE)
     }
   )
@@ -369,7 +369,7 @@ shinyServer(function(input,output){
       wb <- createWorkbook()
       print(class(sorted))
       addWorksheet(wb = wb, sheetName = "Sheet 1", gridLines = FALSE)
-      writeDataTable(wb = wb, sheet = 1, x = sorted)
+      writeDataTable(wb = wb, sheet = 1,rowNames = TRUE, x = sorted)
       saveWorkbook(wb, file, overwrite = TRUE)
     }
   )
