@@ -23,22 +23,6 @@ if(!require(readxl)) {
   require(readxl)
 } 
 
-if(!require(shinyRGL)) {
-  install.packages("shinyRGL", repos="http://cran.us.r-project.org")
-  require(shinyRGL)
-} 
-
-if(!require(rgl)) {
-  install.packages("rgl", repos="http://cran.us.r-project.org")
-  require(rgl)
-} 
-
-if(!require(rglwidget)) {
-  install.packages("rglwidget", repos="http://cran.us.r-project.org")
-  require(rglwidget)
-} 
-
-
 
 shinyServer(function(input,output){
   
@@ -316,26 +300,6 @@ shinyServer(function(input,output){
       saveWorkbook(wb, file, overwrite = TRUE)
     }
   )
-  scenegen <- reactive({
-    # make a random scene
-    x <- merged[,1]
-    y <- merged[,2]
-    z <- merged[,3]
-    plot3d(merged[,1:3])
-    scene1 <- scene3d()
-    rgl.close() # make the app window go away
-    return(scene1)
-  })
-  output$plot3d <- renderRglwidget({ 
-    try(rgl.close())
-    
-    points3d(merged[,1],
-             merged[,2],
-             merged[,3], col = 'green')
-    axes3d()
-    rglwidget()
-  })
-  
   
   output$downloadData3 <- downloadHandler(
     filename = function() { paste("top10_cluster", "xlsx", sep='.') },
@@ -414,6 +378,6 @@ shinyServer(function(input,output){
     if(is.null(data()))
       ""
     else
-      tabsetPanel(tabPanel("About file", tableOutput("filedf")),tabPanel("Data", dataTableOutput("table")),tabPanel("Summary", dataTableOutput("sum")),tabPanel("Cluster",dataTableOutput("cluster")),tabPanel("Classification",dataTableOutput("class")),tabPanel("Top 10 Clusters",dataTableOutput("sort")),tabPanel("3D Plot",rglwidgetOutput('plot3d')))
+      tabsetPanel(tabPanel("About file", tableOutput("filedf")),tabPanel("Data", dataTableOutput("table")),tabPanel("Summary", dataTableOutput("sum")),tabPanel("Cluster",dataTableOutput("cluster")),tabPanel("Classification",dataTableOutput("class")),tabPanel("Top 10 Clusters",dataTableOutput("sort")))
   })
 })
