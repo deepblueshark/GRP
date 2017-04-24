@@ -1,4 +1,4 @@
-
+# uploading frameworks
 if(!require(openxlsx)) {
   install.packages("openxlsx", repos="http://cran.us.r-project.org")
   require(openxlsx)
@@ -45,42 +45,31 @@ shinyServer(function(input,output){
   data <- reactive({
     file1 <- input$file
     
-    
-    # Determine document format; 
-    #ptn <- "\\.[[:alnum:]]{1,5}$" 
-    #suf <- tolower(regmatches(file1$name, regexpr(ptn, file1$name))) 
-    
-    #if no argument 
+    # reads excel files
     if(is.null(input$file)){return()}
     file.rename(file1$datapath,paste(file1$datapath,".xlsx", sep=""))
-    # Options for Excel documents; 
-    # if (suf %in% c('.xls', '.xlsx')) { 
-    #  if( is.null(file1)){return()}
-    #read.xlsx(file1$datapath, 1)
-    #read.xlsx(file1$datapath, sheet = 1, colNames = TRUE)
     read_excel(paste(file1$datapath,".xlsx",sep=""))
-    #read.big.matrix(file1$datapath,".xlsx",sep="")
-    #}
-    # else{
-    # read.table(file = file1$datapath, sep = input$sep, header = input$header, stringsAsFactors = input$stringAsFactors)
-    # }
   })
   
+  #prints dataset information
   output$filedf <- renderTable({
     if(is.null(data())){return()}
     input$file
   })
   
+  # prints summary of dataset
   output$sum <- DT::renderDataTable({
     if(is.null(data())){return()}
     datatable(summary(data()))
   })
   
+  # prints dataset input
   output$table <- DT::renderDataTable({
     if(is.null(data())){return()}
     datatable(data())
   })
   
+  # runs clustering algorithm
   output$cluster <- DT::renderDataTable({
     if(is.null(data())){return()}
     
@@ -89,17 +78,17 @@ shinyServer(function(input,output){
     q <- 1
     
     
-    
+    # goes through range of eps
     for(i in input$eps[1]:input$eps[2])
     {
-      
+      # goes through range of minPts
       for(j in input$pts[1]:input$pts[2])
       {
         
         
         db <- dbscan(x, eps = i , minPts = j)
         
-        
+        # appends cluster column
         merged[q+3] <<- db$cluster
         names(merged)[q+3] <<- print(paste0("Eps ",i," MinPts ",j))
         q <- q+1
@@ -111,6 +100,7 @@ shinyServer(function(input,output){
     
   })
   
+  # runs classification algorithm
   output$class <- DT::renderDataTable({
     if(is.null(data())){return()}
     
@@ -141,8 +131,9 @@ shinyServer(function(input,output){
         }
         
         
-        
+        # takes largest cluster as wood element
         wood <- max(temp[2])
+        # takes other clusters as non-wood elements
         nonwood <- (sum(temp[2]) - max(temp[2])) + noise 
         
         
@@ -158,6 +149,7 @@ shinyServer(function(input,output){
     datatable(classified)
   })
   
+  # sorts clusters and prints top 10 clusters
   output$sort <- DT::renderDataTable({
     if(is.null(data())){return()}
     
@@ -225,6 +217,7 @@ shinyServer(function(input,output){
     
   })
   
+   
   output$downloadData <- downloadHandler(
     
     filename = function() { paste("classification_result", "xlsx", sep='.') },
@@ -316,22 +309,43 @@ shinyServer(function(input,output){
       saveWorkbook(wb, file, overwrite = TRUE)
     }
   )
-  scenegen <- reactive({
-    # make a random scene
-    x <- merged[,1]
-    y <- merged[,2]
-    z <- merged[,3]
-    plot3d(merged[,1:3])
-    scene1 <- scene3d()
-    rgl.close() # make the app window go away
-    return(scene1)
-  })
+  
+  # rendering 3d tree
   output$plot3d <- renderRglwidget({ 
     try(rgl.close())
-    
-    points3d(merged[,1],
+   
+     points3d(merged[,1],
              merged[,2],
              merged[,3], col = 'green')
+    axes3d()
+    rglwidget()
+  })
+  
+  # rendering wood element of 3d tree
+  output$plot3d2 <- renderRglwidget({ 
+    try(rgl.close())
+  
+      e <- as.numeric(input$eps1)
+    m <- as.numeric(input$pts1)
+    
+    
+    x <-as.matrix(data())
+    db <- dbscan(x, eps = e , minPts = m)
+    
+    temp<- as.data.frame(table(db$cluster))
+    
+    
+    temp <- temp[rev(order(temp$Freq)),]
+    
+    
+    first <- temp$Var1[1]
+    
+    
+    
+    db_filtered = merged[merged$`Eps 1 MinPts 3`== first ,e:m]
+    points3d(db_filtered[,1],
+             db_filtered[,2],
+             db_filtered[,3] )
     axes3d()
     rglwidget()
   })
@@ -410,10 +424,11 @@ shinyServer(function(input,output){
     }
   )
   
+  # prints entire output tabs onto the webpage
   output$tb <- renderUI({
     if(is.null(data()))
       ""
     else
-      tabsetPanel(tabPanel("About file", tableOutput("filedf")),tabPanel("Data", dataTableOutput("table")),tabPanel("Summary", dataTableOutput("sum")),tabPanel("Cluster",dataTableOutput("cluster")),tabPanel("Classification",dataTableOutput("class")),tabPanel("Top 10 Clusters",dataTableOutput("sort")),tabPanel("3D Plot",rglwidgetOutput('plot3d')))
+      tabsetPanel(tabPanel("About file", tableOutput("filedf")),tabPanel("Data", dataTableOutput("table")),tabPanel("Summary", dataTableOutput("sum")),tabPanel("Cluster",dataTableOutput("cluster")),tabPanel("Classification",dataTableOutput("class")),tabPanel("Top 10 Clusters",dataTableOutput("sort")),tabPanel("3D Plot",rglwidgetOutput('plot3d')),tabPanel("Wood Only 3D",rglwidgetOutput('plot3d2')))
   })
 })
